@@ -1,0 +1,16 @@
+*.zip
+*.docx
+*.pdf
+*.exe
+*.env
+*.env.example
+.env.example
+.env
+.env.txt
+.postman
+node_modules
+*.xlsx
+*.log
+*.sql
+*.sh
+migrations/**
