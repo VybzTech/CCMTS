@@ -1,0 +1,463 @@
+Test ID,Module,Test Case Title,Priority,Preconditions,Test Steps,Expected Results,Actual Results,Status,Tested By,Test Date,Comments
+TC-AUTH-001,Authentication,Valid User Login,High,"User account exists with valid credentials (email: test@lirs.gov, password: Password123)","1. Navigate to login page
+2. Enter valid email address
+3. Enter valid password
+4. Click Login button","1. Login page loads successfully
+2. Email field accepts input
+3. Password field masks input
+4. User is redirected to appropriate dashboard based on role",,,,,
+TC-AUTH-002,Authentication,Invalid Email Format,High,User is on login page,"1. Navigate to login page
+2. Enter invalid email format (e.g., 'testinvalid')
+3. Enter any password
+4. Click Login button","Error message displayed: 'Please enter a valid email address'
+User remains on login page",,,,,
+TC-AUTH-003,Authentication,Invalid Password,High,User account exists with valid email,"1. Navigate to login page
+2. Enter valid email address
+3. Enter incorrect password
+4. Click Login button","Error message displayed: 'Invalid email or password'
+User remains on login page
+Failed attempt is logged",,,,,
+TC-AUTH-004,Authentication,Empty Email Field,High,User is on login page,"1. Navigate to login page
+2. Leave email field empty
+3. Enter any password
+4. Click Login button","Error message displayed: 'Email is required'
+Login button is disabled or form submission prevented",,,,,
+TC-AUTH-005,Authentication,Empty Password Field,High,User is on login page,"1. Navigate to login page
+2. Enter valid email address
+3. Leave password field empty
+4. Click Login button","Error message displayed: 'Password is required'
+Login button is disabled or form submission prevented",,,,,
+TC-AUTH-006,Authentication,Rate Limiting - 5 Failed Attempts,High,User has valid account,"1. Navigate to login page
+2. Enter valid email
+3. Enter wrong password 5 times consecutively","After 5th attempt: 'Too many login attempts. Please try again in 5 minutes'
+Account is temporarily locked
+6th attempt should be blocked",,,,,
+TC-AUTH-007,Authentication,Remember Me Functionality,Medium,User has valid credentials,"1. Navigate to login page
+2. Enter valid credentials
+3. Check 'Remember Me' checkbox
+4. Click Login
+5. Close browser
+6. Reopen browser and navigate to application","User remains logged in after browser restart
+Session persists for up to 30 days",,,,,
+TC-AUTH-008,Authentication,Password Reset Request,High,User account exists with registered email,"1. Navigate to login page
+2. Click 'Forgot Password' link
+3. Enter registered email address
+4. Click Submit","Password reset email is sent
+Success message displayed
+Reset token generated with expiration",,,,,
+TC-AUTH-009,Authentication,User Logout,High,User is logged in,"1. Click on user profile/menu
+2. Click Logout button","User is logged out
+Session is destroyed
+User is redirected to login page
+Back button does not restore session",,,,,
+TC-AUTH-010,Authentication,Session Timeout,Medium,User is logged in,"1. Login to application
+2. Remain idle for session timeout period
+3. Attempt to perform any action","User is automatically logged out
+Redirected to login page with message 'Session expired'",,,,,
+TC-LTR-001,Letter Registration,Register Single Letter - All Required Fields,High,"User is logged in as ODU user
+User has access to letter registration form","1. Navigate to Register Letter page
+2. Enter Recipient Name: 'John Doe'
+3. Enter Recipient Address: '123 Main Street Lagos'
+4. Enter Subject: 'Official Notice RE: Tax Assessment'
+5. Select Priority: 'High'
+6. Click Submit button","Letter is created successfully
+Tracking ID generated in format LTR-YYYY-###
+Success message displayed
+Letter status is 'Pending Approval'
+Letter appears in dashboard",,,,,
+TC-LTR-002,Letter Registration,Register Letter with All Fields,High,User is logged in as ODU user,"1. Navigate to Register Letter page
+2. Fill all required fields
+3. Enter Liability Value: '50000'
+4. Enter Notes: 'Handle with care'
+5. Upload attachment (PDF file < 10MB)
+6. Click Submit","Letter created with all details
+Attachment uploaded successfully
+Liability value recorded
+Notes saved
+Success message displayed",,,,,
+TC-LTR-003,Letter Registration,Empty Required Fields Validation,High,User is on letter registration form,"1. Navigate to Register Letter page
+2. Leave Recipient Name empty
+3. Click Submit button","Error message: 'Recipient Name is required'
+Form submission prevented
+Field highlighted in red",,,,,
+TC-LTR-004,Letter Registration,Negative Liability Value,Medium,User is on letter registration form,"1. Fill all required fields
+2. Enter Liability Value: '-1000'
+3. Click Submit","Error message: 'Liability value must be 0 or greater'
+Form submission prevented",,,,,
+TC-LTR-005,Letter Registration,Invalid File Type Upload,High,User is on letter registration form,"1. Fill all required fields
+2. Try to upload .exe file as attachment
+3. Click Submit","Error message: 'Only PDF JPG PNG files are allowed'
+File upload rejected",,,,,
+TC-LTR-006,Letter Registration,File Size Exceeds Limit,High,User is on letter registration form,"1. Fill all required fields
+2. Try to upload file larger than 10MB
+3. Click Submit","Error message: 'File size must not exceed 10MB'
+File upload rejected",,,,,
+TC-LTR-007,Letter Registration,Tracking ID Auto-Generation,High,User is logged in as ODU user,"1. Register a new letter with valid details
+2. Note the tracking ID
+3. Register another letter","First letter gets unique tracking ID (e.g., LTR-2026-001)
+Second letter gets incremented ID (e.g., LTR-2026-002)
+IDs follow format LTR-YYYY-###",,,,,
+TC-LTR-008,Letter Registration,Priority Selection Validation,Medium,User is on letter registration form,"1. Fill all required fields
+2. Verify Priority dropdown options
+3. Select each priority option","Dropdown shows: Low Medium High
+Each selection is saved correctly
+Default priority is displayed",,,,,
+TC-BULK-001,Bulk Upload,Valid CSV Upload,High,"User is logged in as ODU user
+Valid CSV file prepared with correct template","1. Navigate to Bulk Upload page
+2. Download CSV template
+3. Fill template with 5 valid letter records
+4. Upload the CSV file
+5. Click Submit","All 5 letters created successfully
+Each letter gets unique tracking ID
+Success message shows count of created letters
+All letters appear with 'Pending Approval' status",,,,,
+TC-BULK-002,Bulk Upload,Invalid CSV Format,High,User is on Bulk Upload page,"1. Navigate to Bulk Upload page
+2. Upload a file that is not CSV (e.g., .xlsx .txt)
+3. Click Submit","Error message: 'Please upload a valid CSV file'
+File rejected",,,,,
+TC-BULK-003,Bulk Upload,CSV Missing Required Columns,High,User is on Bulk Upload page,"1. Create CSV without 'recipient_name' column
+2. Upload the CSV file
+3. Click Submit","Error message: 'CSV missing required columns: recipient_name'
+File rejected with specific column names listed",,,,,
+TC-BULK-004,Bulk Upload,CSV File Size Exceeds Limit,High,User is on Bulk Upload page,"1. Create CSV file larger than 5MB
+2. Upload the file
+3. Click Submit","Error message: 'File size must not exceed 5MB'
+File upload rejected",,,,,
+TC-BULK-005,Bulk Upload,Partial Data Validation Errors,High,User is on Bulk Upload page,"1. Create CSV with 10 records
+2. Include 2 records with missing required fields
+3. Upload and Submit","Error report shows exactly which rows failed (line numbers)
+Valid records may be imported (or all rejected based on implementation)
+Clear error messages for each failed row",,,,,
+TC-BULK-006,Bulk Upload,Download CSV Template,Medium,User is on Bulk Upload page,"1. Navigate to Bulk Upload page
+2. Click 'Download Template' button
+3. Open downloaded file","Template downloads successfully
+Contains correct headers: recipient_name recipient_address subject priority liability_value notes
+File format is .csv",,,,,
+TC-APR-001,Letter Approval,Admin Approves Single Letter,High,"User is logged in as Admin
+At least one letter exists with 'Pending Approval' status","1. Navigate to Pending Approvals page
+2. View list of pending letters
+3. Click Approve button on a letter
+4. Confirm approval","Letter status changes to 'Approved'
+Letter removed from pending list
+Notification sent to ODU user who created the letter
+Timeline updated with approval action",,,,,
+TC-APR-002,Letter Approval,Admin Rejects Single Letter,High,"User is logged in as Admin
+At least one letter exists with 'Pending Approval' status","1. Navigate to Pending Approvals page
+2. Click Reject button on a letter
+3. Confirm rejection","Letter status changes to 'Rejected'
+Letter removed from pending list
+Notification sent to ODU user
+Timeline updated with rejection action and reason",,,,,
+TC-APR-003,Letter Approval,Batch Approval - Multiple Letters,High,"User is logged in as Admin
+Multiple letters exist with 'Pending Approval' status","1. Navigate to Pending Approvals page
+2. Select checkboxes for 5 letters
+3. Click 'Batch Approve' button
+4. Confirm batch action","All 5 letters status changed to 'Approved'
+Success message shows count approved
+All letters removed from pending list
+Notifications sent to respective ODU users",,,,,
+TC-APR-004,Letter Approval,Batch Rejection - Multiple Letters,High,"User is logged in as Admin
+Multiple letters exist with 'Pending Approval' status","1. Navigate to Pending Approvals page
+2. Select checkboxes for 3 letters
+3. Click 'Batch Reject' button
+4. Confirm batch action","All 3 letters status changed to 'Rejected'
+Success message shows count rejected
+Notifications sent to respective ODU users",,,,,
+TC-APR-005,Letter Approval,Unauthorized User Cannot Approve,High,"User is logged in as ODU user (not Admin)","1. Attempt to access Pending Approvals page
+2. Try direct URL access to approval endpoint","Access denied
+User redirected or shown 'Unauthorized' message
+No approval actions available",,,,,
+TC-COR-001,Courier Assignment,Assign Courier to Approved Letter,High,"User is logged in as Admin
+Approved letter exists
+Available courier exists","1. Navigate to Assignments page
+2. Select an approved letter
+3. Select an available courier from dropdown
+4. Click Assign button","Letter status changes to 'Assigned'
+Courier assigned to letter
+Courier's active task count increases
+Timeline updated with assignment details",,,,,
+TC-COR-002,Courier Assignment,Auto-Assign Courier,High,"User is logged in as Admin
+Multiple approved letters exist
+Multiple available couriers exist","1. Navigate to Assignments page
+2. Select multiple approved letters
+3. Click 'Auto-Assign' button","Couriers assigned based on:
+- Availability status
+- Lowest workload first
+- Performance rating
+All selected letters get assigned
+Assignment logged in timeline",,,,,
+TC-COR-003,Courier Assignment,Unavailable Courier Not Shown,Medium,"User is logged in as Admin
+Courier exists with status 'Unavailable'","1. Navigate to Assignments page
+2. Select an approved letter
+3. View courier dropdown","Unavailable couriers not shown in dropdown
+Only available couriers selectable",,,,,
+TC-COR-004,Courier Pool Management,Add New Courier,High,User is logged in as Admin,"1. Navigate to Courier Pool page
+2. Click 'Add Courier' button
+3. Fill courier details (Name Phone Email)
+4. Click Save","New courier added to pool
+Courier appears in list with 'Available' status
+Performance rating initialized
+Success message displayed",,,,,
+TC-COR-005,Courier Pool Management,Edit Courier Information,Medium,"User is logged in as Admin
+Courier exists in the pool","1. Navigate to Courier Pool page
+2. Click Edit on a courier
+3. Update courier name and phone
+4. Click Save","Courier information updated
+Changes reflected immediately
+Success message displayed",,,,,
+TC-COR-006,Courier Pool Management,Toggle Courier Availability,Medium,"User is logged in as Admin
+Courier exists with 'Available' status","1. Navigate to Courier Pool page
+2. Click Toggle Availability for a courier","Courier status changes to 'Unavailable'
+Courier no longer appears in assignment dropdown
+Status indicator updated",,,,,
+TC-COR-007,Courier Pool Management,Delete Courier Without Active Assignments,Medium,"User is logged in as Admin
+Courier exists with no active assignments","1. Navigate to Courier Pool page
+2. Click Delete on courier with no active tasks
+3. Confirm deletion","Courier removed from pool
+Success message displayed
+Courier no longer appears in list",,,,,
+TC-COR-008,Courier Pool Management,Cannot Delete Courier With Active Assignments,High,"User is logged in as Admin
+Courier exists with active assignments","1. Navigate to Courier Pool page
+2. Click Delete on courier with active assignments
+3. Confirm deletion","Error message: 'Cannot delete courier with active assignments'
+Courier remains in pool
+Option to reassign or wait until deliveries complete",,,,,
+TC-TRK-001,Letter Tracking,Track Letter by Tracking ID,High,"Letter exists with known tracking ID
+User is logged in","1. Navigate to Track Letter page
+2. Enter valid tracking ID (e.g., LTR-2026-001)
+3. Click Search","Letter details displayed:
+- Current status
+- Recipient information
+- Subject
+- Priority
+- Timeline of status changes",,,,,
+TC-TRK-002,Letter Tracking,Track Non-Existent Letter,Medium,User is on Track Letter page,"1. Navigate to Track Letter page
+2. Enter non-existent tracking ID (e.g., LTR-9999-999)
+3. Click Search","Message: 'No letter found with this tracking ID'
+No results displayed",,,,,
+TC-TRK-003,Letter Tracking,View Letter Timeline,High,"Letter exists with multiple status changes","1. Search for letter with known tracking ID
+2. View timeline section","Complete timeline displayed showing:
+- Registration date and user
+- Approval/Rejection date and admin
+- Assignment date and courier
+- Status changes with timestamps
+All entries in chronological order",,,,,
+TC-TRK-004,Letter Tracking,ODU User Sees Only Directorate Letters,High,"User logged in as ODU user
+Letters exist from multiple directorates","1. Navigate to All Letters or Dashboard
+2. View letters list","Only letters from user's directorate visible
+Letters from other directorates not shown
+Correct count displayed",,,,,
+TC-DEL-001,Delivery Status,Mark Letter as In-Transit,High,"User is logged in as Admin
+Letter exists with 'Assigned' status","1. Navigate to letter management
+2. Select assigned letter
+3. Click 'Mark In-Transit'","Letter status changes to 'In-Transit'
+Timeline updated with in-transit timestamp
+Notification sent to letter creator",,,,,
+TC-DEL-002,Delivery Status,Mark Letter as Delivered,High,"Letter exists with 'In-Transit' status","1. Navigate to letter management
+2. Select in-transit letter
+3. Click 'Mark Delivered'","Letter status changes to 'Delivered'
+Timeline updated with delivery timestamp
+Courier completed deliveries count increases
+Notification sent to letter creator",,,,,
+TC-DEL-003,Delivery Status,Mark Letter as Undelivered,High,"Letter exists with 'In-Transit' status","1. Navigate to letter management
+2. Select in-transit letter
+3. Click 'Mark Undelivered'
+4. Enter reason for non-delivery","Letter status changes to 'Undelivered'
+Reason recorded in timeline
+Notification sent to letter creator
+Letter available for re-assignment",,,,,
+TC-USR-001,User Management,Admin Creates New User,High,User is logged in as Admin,"1. Navigate to User Management
+2. Click 'Add User'
+3. Enter Full Name Email Password
+4. Select Role: ODU
+5. Select Directorate
+6. Click Save","New user created successfully
+User appears in user list
+Email notification sent (if configured)
+User can login with credentials",,,,,
+TC-USR-002,User Management,Duplicate Email Validation,High,"User is logged in as Admin
+User with email test@lirs.gov already exists","1. Navigate to User Management
+2. Click 'Add User'
+3. Enter existing email: test@lirs.gov
+4. Fill other fields
+5. Click Save","Error message: 'Email already exists'
+User not created
+Form remains with entered data",,,,,
+TC-USR-003,User Management,Password Minimum Length,High,User is on Add User form,"1. Fill all required fields
+2. Enter password: '1234567' (7 characters)
+3. Click Save","Error message: 'Password must be at least 8 characters'
+User not created",,,,,
+TC-USR-004,User Management,Edit User Information,Medium,"User is logged in as Admin
+User record exists","1. Navigate to User Management
+2. Click Edit on existing user
+3. Update Full Name
+4. Click Save","User information updated
+Changes reflected immediately
+Success message displayed",,,,,
+TC-USR-005,User Management,Delete User,Medium,"User is logged in as Admin
+User record exists with no critical dependencies","1. Navigate to User Management
+2. Click Delete on user
+3. Confirm deletion","User deleted from system
+User no longer appears in list
+User cannot login anymore",,,,,
+TC-USR-006,User Management,Directorate Required for ODU Role,High,User is on Add User form,"1. Select Role: ODU
+2. Leave Directorate field empty
+3. Fill other required fields
+4. Click Save","Error message: 'Directorate is required for ODU users'
+User not created",,,,,
+TC-DIR-001,Directorate Management,Create New Directorate,High,User is logged in as Admin,"1. Navigate to Directorate Management
+2. Click 'Add Directorate'
+3. Enter Name: 'Legal Affairs'
+4. Enter Code: 'LEGAL'
+5. Enter Description (optional)
+6. Click Save","Directorate created successfully
+Directorate appears in list
+Available in user creation dropdown
+Success message displayed",,,,,
+TC-DIR-002,Directorate Management,Unique Code Validation,High,"User is logged in as Admin
+Directorate with code 'HR' exists","1. Navigate to Directorate Management
+2. Click 'Add Directorate'
+3. Enter Code: 'HR' (existing code)
+4. Fill other fields
+5. Click Save","Error message: 'Directorate code already exists'
+Directorate not created",,,,,
+TC-DIR-003,Directorate Management,Code Maximum Length,Medium,User is on Add Directorate form,"1. Enter Code with 15 characters
+2. Fill other fields
+3. Click Save","Error message: 'Code must not exceed 10 characters'
+Directorate not created",,,,,
+TC-DIR-004,Directorate Management,Cannot Delete Directorate with Users,High,"Directorate 'HR' exists with assigned users","1. Navigate to Directorate Management
+2. Click Delete on 'HR' directorate
+3. Confirm deletion","Error message: 'Cannot delete directorate with assigned users'
+Directorate remains
+Suggestion to reassign users first",,,,,
+TC-DIR-005,Directorate Management,View Directorate Performance,Medium,"Directorate exists with letter history","1. Navigate to Directorate Management
+2. Click on directorate name or View Details","Performance metrics displayed:
+- Total letters
+- Delivered count
+- Delivery rate percentage
+- Performance rating (Good/Warning/Needs Improvement)",,,,,
+TC-NOT-001,Notifications,Receive Notification on Letter Approval,High,"User is logged in as ODU user
+Letter submitted for approval","1. Admin approves the letter
+2. User refreshes page or views notifications","Notification received: 'Your letter [Tracking ID] has been approved'
+Notification marked as unread
+Notification count badge updated",,,,,
+TC-NOT-002,Notifications,Receive Notification on Letter Rejection,High,"User is logged in as ODU user
+Letter submitted for approval","1. Admin rejects the letter
+2. User refreshes page or views notifications","Notification received: 'Your letter [Tracking ID] has been rejected'
+Rejection reason included if provided
+Notification marked as unread",,,,,
+TC-NOT-003,Notifications,Mark Notification as Read,Medium,"User has unread notifications","1. Navigate to Notifications
+2. View notification
+3. Click Mark as Read","Notification marked as read
+Unread count decreases
+Visual indicator changes",,,,,
+TC-NOT-004,Notifications,View All Notifications,Medium,"User has multiple notifications","1. Navigate to Notifications page
+2. View list of notifications","All notifications displayed
+Sorted by date (newest first)
+Unread notifications highlighted
+Different notification types color-coded",,,,,
+TC-RPT-001,Reports,Generate Letter Volume Report,High,User is logged in as Admin,"1. Navigate to Reports
+2. Select 'Letter Volume by Status' report
+3. Select date range
+4. Click Generate","Report displays letter counts by status:
+- Pending
+- Approved
+- Assigned
+- In-Transit
+- Delivered
+- Undelivered
+Chart visualization included",,,,,
+TC-RPT-002,Reports,Export Report to CSV,High,"User is logged in as Admin
+Report is generated","1. Generate any report
+2. Click 'Export to CSV' button
+3. Open downloaded file","CSV file downloaded
+Contains all report data
+Properly formatted columns
+Filename includes report type and date",,,,,
+TC-RPT-003,Reports,Courier Performance Report,High,User is logged in as Admin,"1. Navigate to Reports
+2. Select 'Courier Performance' report
+3. Click Generate","Report shows for each courier:
+- Completed deliveries
+- Active tasks
+- Performance rating
+- Delivery success rate",,,,,
+TC-RPT-004,Reports,Directorate Statistics Report,Medium,User is logged in as Admin,"1. Navigate to Reports
+2. Select 'Directorate Statistics' report
+3. Click Generate","Report shows per directorate:
+- Letter volume
+- Delivery rates
+- Performance comparison
+Chart visualization included",,,,,
+TC-ANL-001,Management Analytics,12-Month Delivery Trends,High,User is logged in as Management,"1. Navigate to Analytics dashboard
+2. View 12-month trends section","Line chart showing monthly delivery volumes
+Trend analysis visible
+Data for past 12 months displayed",,,,,
+TC-ANL-002,Management Analytics,Directorate Performance Comparison,High,User is logged in as Management,"1. Navigate to Analytics
+2. View directorate comparison section","Bar chart comparing directorates
+Performance ratings visible
+Sortable by different metrics",,,,,
+TC-SEC-001,Security,CSRF Protection on Forms,Critical,User is logged in,"1. Inspect any form HTML
+2. Verify CSRF token is present
+3. Submit form without CSRF token (using developer tools)","CSRF token present in all forms
+Form submission without valid token is rejected
+Error message for invalid CSRF token",,,,,
+TC-SEC-002,Security,SQL Injection Prevention,Critical,User is on any search or input form,"1. Enter SQL injection attempt in Tracking ID search: ' OR '1'='1
+2. Click Search","No SQL error displayed
+No data leakage
+Search returns no results or error message
+Application remains functional",,,,,
+TC-SEC-003,Security,XSS Prevention,Critical,User can input text in any field,"1. Enter XSS payload in letter subject: <script>alert('XSS')</script>
+2. Submit form
+3. View the saved letter","Script tags are escaped/sanitized
+No alert popup
+Text displayed as plain text
+No JavaScript execution",,,,,
+TC-SEC-004,Security,Role-Based Access Control,Critical,Users with different roles exist,"1. Login as ODU user
+2. Try to access Admin-only pages (User Management Approvals)
+3. Try direct URL access","Access denied for unauthorized pages
+Redirect to appropriate dashboard
+No Admin functionality accessible to ODU user",,,,,
+TC-SEC-005,Security,File Upload Security,High,User is on letter registration form,"1. Try to upload file with double extension: file.php.jpg
+2. Try to upload file with manipulated headers","File rejected or properly sanitized
+Only genuine image/PDF files accepted
+Server validates file content not just extension",,,,,
+TC-UI-001,User Interface,Responsive Design - Mobile,Medium,Application is accessible,"1. Open application on mobile device or use responsive mode
+2. Navigate through main pages
+3. Test all major functions","Layout adapts to mobile screen
+All buttons and links accessible
+Forms usable on mobile
+No horizontal scrolling required",,,,,
+TC-UI-002,User Interface,Dashboard Statistics Display,Medium,User is logged in with existing data,"1. Login to application
+2. View dashboard","Statistics cards show correct counts
+Numbers update in real-time or on refresh
+Charts render correctly
+Data matches actual records",,,,,
+TC-UI-003,User Interface,Form Field Validation Feedback,Medium,User is on any form,"1. Submit form with invalid data
+2. Observe error display","Error messages appear near relevant fields
+Fields highlighted in red
+Clear description of what's wrong
+Form retains entered data",,,,,
+TC-UI-004,User Interface,Loading States,Low,User performs actions that require server response,"1. Submit a form
+2. Load a page with data
+3. Generate a report","Loading indicator shown during processing
+User cannot double-submit
+Interface remains responsive
+Clear feedback when complete",,,,,
+TC-INT-001,Integration,End-to-End Letter Flow,Critical,"All user accounts exist
+Courier exists and available","1. ODU user registers new letter
+2. Admin approves letter
+3. Admin assigns courier
+4. Mark letter as In-Transit
+5. Mark letter as Delivered
+6. Verify all notifications sent
+7. Verify timeline complete","Complete workflow executes successfully
+All status changes recorded
+Notifications sent at each step
+Timeline shows complete history
+Reports reflect the transaction",,,,,
+TC-INT-002,Integration,Concurrent User Operations,High,"Multiple user accounts exist","1. Two admins access pending approvals simultaneously
+2. Both try to approve same letter
+3. Verify system handles conflict","One approval succeeds
+Second user gets appropriate message
+No duplicate approvals
+Data integrity maintained",,,,,

@@ -1,0 +1,73 @@
+services:
+  mysql:
+    image: mysql:8.0
+    platform: linux/amd64
+    container_name: dlts-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-dlts_db}
+      MYSQL_USER: ${DB_USER:-dlts_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-dlts_password}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    container_name: dlts-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      platform: linux/amd64
+      dockerfile_inline: |
+        FROM --platform=linux/amd64 node:20-alpine
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm install
+        COPY . .
+        RUN npx prisma generate
+        ARG PORT=9989
+        EXPOSE ${PORT}
+        CMD ["npm", "start"]
+    platform: linux/amd64
+    container_name: dlts-app
+    restart: always
+    ports:
+      - "${PORT:-9989}:${PORT:-9989}"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-9989}
+      DATABASE_URL: mysql://${DB_USER:-dlts_user}:${DB_PASSWORD:-dlts_password}@mysql:3306/${DB_NAME:-dlts_db}
+      SHADOW_DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:-root_password}@mysql:3306/${DB_NAME:-dlts_db}_shadow
+      JWT_SECRET: ${JWT_SECRET:-secret_jwt_key}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && npm start"
+
+volumes:
+  mysql_data:
+  redis_data:

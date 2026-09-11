@@ -1,6 +1,5 @@
     import path from "node:path";
     import prisma from "../config/prisma.js";
-import { validateFields, sendValidationError } from "../utils/validate.js";
     import logger from "../utils/logger.js";
     import { runAllocation } from "../services/allocationService.js";
 
@@ -55,19 +54,6 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
     const details = req.body;
 
     try {
-        // UAT ADM-011: invalid input previously fell through to Prisma
-        // and came back as a 500 rather than a field-level rejection.
-        const validation = validateFields(details, [
-            { key: "sender_directorate_id", label: "Sending directorate" },
-            { key: "recipient_name", label: "Recipient name" },
-            { key: "recipient_address", label: "Recipient address" },
-            { key: "lga_address", label: "Delivery LGA" },
-            { key: "subject", label: "Subject" },
-        ]);
-        if (validation.message) {
-            return sendValidationError(res, validation);
-        }
-
         const trackingId = await generateTrackingId();
 
         const new_letter = await prisma.letter.create({
@@ -79,12 +65,6 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
             recipientAddress: details.recipient_address,
             lgaAddress: details.lga_address,
             subject: details.subject,
-            // submittedBy is required by the schema and has no DB default.
-            // The client has never sent it, which made every create fail
-            // with a 500 (UAT ADM-010 / ODU-010). Derive it from the
-            // authenticated user rather than trusting free text - "who
-            // submitted this" shouldn't be typeable by the submitter.
-            submittedBy: details.submitted_by?.trim() || req.user.name,
             priority: details.priority || "Medium",
             liabilityValue: details.liability_value || 0,
             liabilityYear: details.liability_year?.toString() || new Date().getFullYear().toString(),
@@ -145,8 +125,6 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
             recipientAddress: letter.recipient_address,
             lgaAddress: letter.lga_address,
             subject: letter.subject,
-            // Same required-field fix as generate_single_letter above.
-            submittedBy: letter.submitted_by?.trim() || req.user.name,
             priority: letter.priority || "Medium",
             liabilityValue: letter.liability_value || 0,
             liabilityYear: letter.liability_year?.toString() || new Date().getFullYear().toString(),
@@ -617,35 +595,12 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
     const { reason } = req.body;
 
     try {
-        // UAT CUR-009: the failure reason was optional, so a letter could
-        // be closed as undelivered with no explanation at all - leaving
-        // the Admin Unit and the originating ODU with nothing to act on.
-        // It is the whole point of the failed-delivery record, so it is
-        // required here rather than defaulted to "Delivery failed".
-        const trimmedReason = typeof reason === "string" ? reason.trim() : "";
-        if (trimmedReason.length < 5) {
-            return res.status(400).json({
-                message:
-                    "A reason is required when marking a delivery as failed - say briefly why it could not be delivered.",
-                errors: { reason: "Enter a reason of at least 5 characters." },
-            });
-        }
-
         const letter = await prisma.letter.findUnique({
         where: { id: BigInt(letter_id) }
         });
 
         if (!letter) {
         return res.status(404).json({ message: "Letter not found" });
-        }
-
-        // Guard the transition. Without this, re-posting the same request
-        // decrements the courier's activeTasks again each time and drives
-        // the count negative.
-        if (letter.status === "Delivered" || letter.status === "Undelivered") {
-        return res.status(409).json({
-            message: `This letter is already closed as ${letter.status.toLowerCase()} and cannot be marked undelivered again.`,
-        });
         }
 
         // Authorization: Only assigned courier or Admin
@@ -658,10 +613,6 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
 
         const updatedLetter = await prisma.letter.update({
         where: { id: BigInt(letter_id) },
-        // The reason is recorded in letter_timelines and in both
-        // notifications below rather than on the letter row - `notes` is
-        // the ODU's own field from letter creation, and writing system
-        // text into it would leave no way to tell the two apart.
         data: { status: "Undelivered" }
         });
 
@@ -678,7 +629,7 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
         data: {
             letterId: BigInt(letter_id),
             status: "Undelivered",
-            description: trimmedReason,
+            description: reason || "Delivery failed",
             userId: BigInt(req.user.id)
         }
         });
@@ -689,7 +640,7 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
             userId: updatedLetter.createdById,
             type: "warning",
             title: "Delivery Failed",
-            message: `Your letter ${updatedLetter.trackingId} could not be delivered. Reason: ${trimmedReason}`,
+            message: `Your letter ${updatedLetter.trackingId} could not be delivered.`,
             letterId: updatedLetter.id
         }
         });
@@ -697,7 +648,7 @@ import { validateFields, sendValidationError } from "../utils/validate.js";
         // Notify Admin
         await notifyAdmins(
         "Delivery Failed",
-        `Letter ${updatedLetter.trackingId} delivery failed. Reason: ${trimmedReason}`,
+        `Letter ${updatedLetter.trackingId} delivery failed. Reason: ${reason || 'Not provided'}`,
         updatedLetter.id
         );
 

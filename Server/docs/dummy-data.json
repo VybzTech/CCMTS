@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "signup": {
+      "username": "johndoe",
+      "firstname": "John",
+      "lastname": "Doe",
+      "email": "johndoe@example.com",
+      "password": "password123",
+      "unit": "TAX-01",
+      "staffId": "JD12345"
+    },
+    "login": {
+      "username": "johndoe",
+      "password": "password123"
+    }
+  },
+  "courier": {
+    "create": {
+      "name": "DHL"
+    },
+    "assign": {
+      "courierId": "clq8z1j6k0001s6mnopqrstuv",
+      "letters": [
+        "clq8z1j6k0002s6mnopqrstuv",
+        "clq8z1j6k0003s6mnopqrstuv"
+      ]
+    },
+    "acknowledgePOD": {
+      "letterId": "clq8z1j6k0002s6mnopqrstuv",
+      "signatory": "Jane Smith"
+    }
+  },
+  "schedule": {
+    "create": {
+      "title": "Tax Evasion Case 2023",
+      "liabilityYear": "2023",
+      "companyName": "TechCorp",
+      "lga": "Ikeja",
+      "destination": "123 Tech Street, Lagos",
+      "liabilityAmount": 50000.75,
+      "urgency": "HIGH"
+    },
+    "submit": {
+      "letterIds": [
+        "clq8z1j6k0004s6mnopqrstuv",
+        "clq8z1j6k0005s6mnopqrstuv"
+      ]
+    },
+    "reject": {
+      "notes": "Missing required documentation."
+    },
+    "update": {
+      "title": "Updated: Tax Evasion Case 2023",
+      "destination": "456 Tech Avenue, Lagos"
+    }
+  }
+}

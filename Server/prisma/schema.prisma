@@ -76,8 +76,8 @@
     disabled         Boolean      @default(false)
     mustResetPassword Boolean     @default(false) @map("must_reset_password")
     rememberToken    String?      @map("remember_token") @db.VarChar(100)
-    createdAt        DateTime  @default(now()) @map("created_at")
-    updatedAt        DateTime  @updatedAt @map("updated_at")
+    createdAt        DateTime?    @map("created_at")
+    updatedAt        DateTime?    @map("updated_at")
 
     // Relations
     directorate      Directorate? @relation(fields: [directorateId], references: [id], onDelete: SetNull)
@@ -96,8 +96,8 @@
     name        String    @db.VarChar(255)
     code        String    @unique @db.VarChar(255)
     description String?   @db.Text
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("updated_at")
+    createdAt   DateTime? @map("created_at")
+    updatedAt   DateTime? @map("updated_at")
 
     // Relations
     users       User[]
@@ -118,8 +118,8 @@
     completedDeliveries Int       @default(0) @map("completed_deliveries")
     baseLga             LGA       @map("base_lga")
     otherBranchesLga    Json      @default("[]") @map("other_branches_lga")
-    createdAt           DateTime  @default(now()) @map("created_at")
-    updatedAt           DateTime  @updatedAt @map("updated_at")
+    createdAt           DateTime? @map("created_at")
+    updatedAt           DateTime? @map("updated_at")
 
     // Relations
     user                User?     @relation("UserToCourier", fields: [userId], references: [id], onDelete: Cascade)
@@ -150,8 +150,8 @@
     attachmentPath       String?      @map("attachment_path") @db.VarChar(255)
     podImagePath         String?      @map("pod_image_path") @db.VarChar(255)
     notes                String?      @db.Text
-    createdAt            DateTime  @default(now()) @map("created_at")
-    updatedAt            DateTime  @updatedAt @map("updated_at")
+    createdAt            DateTime?    @map("created_at")
+    updatedAt            DateTime?    @map("updated_at")
 
 
     // Relations
@@ -194,8 +194,8 @@
     message   String           @db.Text
     letterId  BigInt?          @map("letter_id") @db.UnsignedBigInt
     isRead    Boolean          @default(false) @map("is_read")
-    createdAt DateTime  @default(now()) @map("created_at")
-    updatedAt DateTime  @updatedAt @map("updated_at")
+    createdAt DateTime?        @map("created_at")
+    updatedAt DateTime?        @map("updated_at")
 
     // Relations
     user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)

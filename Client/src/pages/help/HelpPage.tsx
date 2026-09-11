@@ -12,31 +12,14 @@ import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import { formatRoleLabel } from '../../utils/format';
 import type { LetterStatus } from '../../types/api';
 
-/**
- * The happy path only. Undelivered is deliberately NOT in this list:
- * it's a terminal branch, not the step after Delivered (see
- * WORKFLOW_BRANCHES below), and rendering it as the tail of a straight
- * chain told the reader a letter goes Delivered -> Undelivered, which
- * it never does.
- */
-const WORKFLOW_MAIN_PATH: LetterStatus[] = [
+const ALL_STATUSES: LetterStatus[] = [
   'Pending_Approval',
   'Approved',
   'Assigned',
   'In_Transit',
   'Delivered',
+  'Undelivered',
 ];
-
-/**
- * Where a letter can leave the happy path. Both land on Undelivered -
- * the API has no separate "Rejected" status (see the note on
- * WORKFLOW_DESCRIPTIONS), so the two exits are distinguished here by
- * the step they branch off rather than by status.
- */
-const WORKFLOW_BRANCHES: Partial<Record<LetterStatus, { to: LetterStatus; label: string }>> = {
-  Pending_Approval: { to: 'Undelivered', label: 'If the Admin rejects the registration' },
-  In_Transit: { to: 'Undelivered', label: 'If the delivery cannot be completed' },
-};
 
 export function HelpPage() {
   const { user } = useAuth();
@@ -121,38 +104,24 @@ export function HelpPage() {
         <Card>
           <CardHeader title="Letter Workflow" />
           <CardBody>
-            <p className="text-secondary mb-md">
-              A letter follows the path below. Two steps can send it off that path to{' '}
-              <strong>Undelivered</strong>, which is where it stops.
-            </p>
-            <ol className="workflow-diagram">
-              {WORKFLOW_MAIN_PATH.map((status, index) => {
-                const branch = WORKFLOW_BRANCHES[status];
-                return (
-                  <li
-                    className={`workflow-step${index === WORKFLOW_MAIN_PATH.length - 1 ? ' is-last' : ''}`}
-                    key={status}
-                  >
-                    <span className="workflow-marker" aria-hidden="true">{index + 1}</span>
+            <p className="text-secondary mb-md">Every letter moves through these statuses in order:</p>
+            <div className="workflow-diagram">
+              {ALL_STATUSES.map((status, index) => (
+                <div key={status}>
+                  <div className="workflow-step">
                     <div className="workflow-content">
                       <StatusBadge status={status} />
                       <p>{WORKFLOW_DESCRIPTIONS[status]}</p>
-
-                      {branch && (
-                        <div className="workflow-branch">
-                          <span className="workflow-branch-label">{branch.label}</span>
-                          <StatusBadge status={branch.to} />
-                        </div>
-                      )}
                     </div>
-                  </li>
-                );
-              })}
-            </ol>
-            <p className="workflow-terminal-note">
-              <StatusBadge status="Undelivered" />
-              <span>{WORKFLOW_DESCRIPTIONS.Undelivered}</span>
-            </p>
+                  </div>
+                  {index < ALL_STATUSES.length - 1 && (
+                    <div className="workflow-arrow">
+                      <i className="fas fa-arrow-down" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </CardBody>
         </Card>
 

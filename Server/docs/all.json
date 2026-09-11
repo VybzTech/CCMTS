@@ -1,0 +1,156 @@
+{
+  "api": {
+    "baseUrl": "https://lirs-dlts/api/v1",
+    "version": "v1"
+  },
+  "endpoints": [
+    {
+      "name": "User Signup",
+      "method": "POST",
+      "path": "/auth/signup",
+      "description": "Register a new user account",
+      "request": {
+        "body": {
+          "username": "string",
+          "firstname": "string",
+          "lastname": "string",
+          "email": "string",
+          "password": "string",
+          "unit": "string",
+          "staffId": "string"
+        }
+      }
+    },
+    {
+      "name": "User Login",
+      "method": "POST",
+      "path": "/auth/login",
+      "description": "Authenticate user and create session",
+      "request": {
+        "body": {
+          "email": "string",
+          "password": "string"
+        }
+      }
+    },
+    {
+      "name": "Assign Courier",
+      "method": "POST",
+      "path": "/courier/assign",
+      "description": "Assign letters to a courier",
+      "request": {
+        "body": {
+          "courierId": "string",
+          "letters": [
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Acknowledge Proof of Delivery",
+      "method": "POST",
+      "path": "/courier/acknowledge-pod",
+      "description": "Acknowledge proof of delivery for a letter",
+      "request": {
+        "body": {
+          "letterId": "string",
+          "signatory": "string"
+        }
+      }
+    },
+
+    
+    {
+        "name": "Create Courier",
+        "method": "POST",
+        "path": "/courier/",
+        "description": "Create a new courier",
+        "request": {
+            "body": {
+                "name": "string"
+            }
+        }
+    },
+    {
+      "name": "Create Letter/Schedule",
+      "method": "POST",
+      "path": "/schedules/create",
+      "description": "Create a new letter schedule",
+      "request": {
+        "body": {
+          "title": "string",
+          "liabilityYear": "string",
+          "companyName": "string",
+          "lga": "string",
+          "destination": "string",
+          "liabilityAmount": "number",
+          "urgency": "string"
+        }
+      }
+    },
+    {
+      "name": "Submit Letters",
+      "method": "POST",
+      "path": "/schedules/submit",
+      "description": "Submit multiple letters for verification",
+      "request": {
+        "body": {
+          "letterIds": [
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Schedules",
+      "method": "GET",
+      "path": "/schedules/",
+      "description": "Get all schedules dashboard view"
+    },
+    {
+      "name": "View Schedule",
+      "method": "GET",
+      "path": "/schedules/:id",
+      "description": "Get details of a specific schedule",
+      "request": {
+        "params": {
+          "id": "string"
+        }
+      }
+    },
+    {
+      "name": "Verify Schedule",
+      "method": "PATCH",
+      "path": "/schedules/:id/verify",
+      "description": "Verify a submitted schedule",
+      "request": {
+        "params": {
+          "id": "string"
+        }
+      }
+    },
+    {
+      "name": "Reject Schedule",
+      "method": "PATCH",
+      "path": "/schedules/:id/reject",
+      "description": "Reject/disqualify a submitted schedule",
+      "request": {
+        "params": {
+          "id": "string"
+        }
+      }
+    },
+    {
+      "name": "Update Letter",
+      "method": "PATCH",
+      "path": "/schedules/:id",
+      "description": "Update letter status",
+      "request": {
+        "params": {
+          "id": "string"
+        }
+      }
+    }
+  ]
+}

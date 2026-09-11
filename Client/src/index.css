@@ -1,0 +1,11 @@
+/**
+ * Entry stylesheet - just pulls in the ported design system.
+ * Keep this file thin; put real rules in styles/app.css so there is
+ * exactly one place a developer needs to look for "what does .foo look
+ * like".
+ */
+@import './styles/app.css';
+
+#root {
+  min-height: 100vh;
+}

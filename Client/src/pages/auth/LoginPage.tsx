@@ -22,35 +22,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/ui/Toast/useToast';
 import { extractErrorMessage } from '../../services/apiClient';
 
-/** Mirrors the server's check in utils/validate.js - permissive enough
- *  to accept real addresses, strict enough to catch "not an email". */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-type LoginFieldErrors = { email?: string; password?: string };
-
-function validateLoginFields(email: string, password: string): LoginFieldErrors {
-  const errors: LoginFieldErrors = {};
-
-  if (email.trim() === '') {
-    errors.email = 'The email field is empty - enter your email address.';
-  } else if (!EMAIL_PATTERN.test(email.trim())) {
-    errors.email = 'That doesn’t look like a valid email address - check for a missing “@” or domain.';
-  }
-
-  if (password === '') {
-    errors.password = 'The password field is empty - enter your password.';
-  }
-
-  return errors;
-}
-
-function summariseFieldErrors(errors: LoginFieldErrors): string {
-  const messages = [errors.email, errors.password].filter(Boolean) as string[];
-  return messages.length === 1
-    ? messages[0]
-    : 'Enter your email address and password to sign in.';
-}
-
 export function LoginPage() {
   const { user, login } = useAuth();
   const { showToast } = useToast();
@@ -62,7 +33,6 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Already-authenticated users shouldn't see the login form again -
@@ -75,20 +45,6 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-
-    // UAT AUTH-004/005/006: an empty or malformed field used to be sent
-    // to the server and come back as the same generic "invalid email or
-    // password" as a genuinely wrong credential, so the user could not
-    // tell the two apart. Catch it here and name the field. The server
-    // validates identically - this is a nicer message, not the only
-    // line of defence.
-    const nextFieldErrors = validateLoginFields(email, password);
-    setFieldErrors(nextFieldErrors);
-    if (nextFieldErrors.email || nextFieldErrors.password) {
-      setError(summariseFieldErrors(nextFieldErrors));
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const mustResetPassword = await login(email, password);
@@ -182,21 +138,11 @@ export function LoginPage() {
                   id="email"
                   name="email"
                   value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                    setFieldErrors((current) => ({ ...current, email: undefined }));
-                  }}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="email@lirs.net"
                   autoComplete="username"
-                  aria-invalid={fieldErrors.email ? true : undefined}
-                  aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                   required
                 />
-                {fieldErrors.email && (
-                  <p id="email-error" className="field-error" role="alert">
-                    {fieldErrors.email}
-                  </p>
-                )}
               </div>
 
               <div className="form-group has-icon">
@@ -207,14 +153,9 @@ export function LoginPage() {
                   id="password"
                   name="password"
                   value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setFieldErrors((current) => ({ ...current, password: undefined }));
-                  }}
+                  onChange={(event) => setPassword(event.target.value)}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  aria-invalid={fieldErrors.password ? true : undefined}
-                  aria-describedby={fieldErrors.password ? 'password-error' : undefined}
                   required
                 />
                 <button
@@ -226,11 +167,6 @@ export function LoginPage() {
                 >
                   <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} aria-hidden="true" />
                 </button>
-                {fieldErrors.password && (
-                  <p id="password-error" className="field-error" role="alert">
-                    {fieldErrors.password}
-                  </p>
-                )}
               </div>
 
               <div className="login-form-row">

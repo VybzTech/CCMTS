@@ -1,9 +1,6 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import logger from '../utils/logger.js';
-import { validateFields, sendValidationError } from '../utils/validate.js';
-
-const VALID_ROLES = ['ODU', 'Admin', 'Management', 'Courier'];
 
 const SAFE_USER_SELECT = {
     id: true,
@@ -39,26 +36,6 @@ export const get_users = async (req, res) => {
 export const create_user = async (req, res) => {
     try {
         const { name, email, password, role, directorateId } = req.body;
-
-        // UAT ADM-004: a create with missing fields used to reach
-        // bcrypt.hash(undefined, 10) and fail with "Illegal arguments:
-        // undefined, number" as a 500, instead of telling the user
-        // which field they left blank.
-        const validation = validateFields(req.body, [
-            { key: 'name', label: 'Full name' },
-            { key: 'email', label: 'Email address', type: 'email' },
-            { key: 'password', label: 'Password', minLength: 8 },
-        ]);
-        if (validation.message) {
-            return sendValidationError(res, validation);
-        }
-
-        if (role !== undefined && role !== null && !VALID_ROLES.includes(role)) {
-            return res.status(400).json({
-                message: `"${role}" is not a valid role. Choose one of: ${VALID_ROLES.join(', ')}.`,
-                errors: { role: 'Unrecognised role.' },
-            });
-        }
 
         const hashed_password = await bcrypt.hash(password, 10);
 

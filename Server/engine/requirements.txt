@@ -1,0 +1,15 @@
+# Allocation Engine Dependencies
+
+# Database
+SQLAlchemy>=2.0.0
+pymysql>=1.1.0  # MySQL driver for SQLAlchemy (pure Python)
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Redis Queue
+redis>=5.0.0
+
+# Optional: for type checking
+typing_extensions>=4.0.0
