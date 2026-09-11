@@ -14,3 +14,11 @@ node_modules
 *.sql
 *.sh
 migrations/**
+KV/**.log
+KV/**.xlsx
+KV/**.pdf
+KV/**.docx
+KV/**.jpg
+KV/**.png
+KV/**.jpeg
+KV/**.webpw
