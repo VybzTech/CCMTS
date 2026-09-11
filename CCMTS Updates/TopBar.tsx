@@ -10,7 +10,6 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useLogout } from '../../hooks/useLogout';
 import { useDismissableMenu } from '../../hooks/useDismissableMenu';
 import { formatRoleLabel } from '../../utils/format';
 
@@ -20,8 +19,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ pageTitle, departmentName }: TopBarProps) {
-  const { user } = useAuth();
-  const confirmLogout = useLogout();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
   const userMenu = useDismissableMenu<HTMLDivElement>();
@@ -96,13 +94,7 @@ export function TopBar({ pageTitle, departmentName }: TopBarProps) {
             <button
               type="button"
               className="user-dropdown-item user-dropdown-item-danger"
-              onClick={() => {
-                // Close the dropdown first - it renders above the page but
-                // below the modal overlay, so leaving it open parks a
-                // stranded menu behind the confirm dialog.
-                userMenu.close();
-                void confirmLogout();
-              }}
+              onClick={logout}
             >
               <i className="fas fa-sign-out-alt" aria-hidden="true" /> Logout
             </button>

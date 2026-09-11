@@ -1,7 +1,6 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import logger from '../utils/logger.js';
-import { validateFields, sendValidationError } from '../utils/validate.js';
 
 const SAFE_USER_SELECT = {
     id: true,
@@ -37,16 +36,6 @@ export const get_users = async (req, res) => {
 export const create_user = async (req, res) => {
     try {
         const { name, email, password, role, directorateId } = req.body;
-
-        // UAT ADM-004: creating a user with a blank field hit
-        // bcrypt.hash(undefined) and returned a 500 that named nothing,
-        // so the admin couldn't tell which input was at fault.
-        const invalid = validateFields(req.body, [
-            { key: 'name', label: 'Name' },
-            { key: 'email', label: 'Email address', type: 'email' },
-            { key: 'password', label: 'Password', minLength: 8 },
-        ]);
-        if (invalid.message) return sendValidationError(res, invalid);
 
         const hashed_password = await bcrypt.hash(password, 10);
 

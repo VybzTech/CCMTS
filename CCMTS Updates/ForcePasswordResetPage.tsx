@@ -21,7 +21,6 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useLogout } from '../../hooks/useLogout';
 import { useToast } from '../../components/ui/Toast/useToast';
 import { changePassword } from '../../services/authService';
 import { extractErrorMessage } from '../../services/apiClient';
@@ -51,8 +50,7 @@ const STRENGTH_LABELS = [
 ];
 
 export function ForcePasswordResetPage() {
-  const { clearMustResetPassword } = useAuth();
-  const confirmLogout = useLogout();
+  const { logout, clearMustResetPassword } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -90,12 +88,9 @@ export function ForcePasswordResetPage() {
     }
   }
 
-  // Same confirm dialog as the top-bar Logout (hooks/useLogout). The
-  // navigate stays because this page sits outside the normal shell and
-  // doesn't redirect on its own - but only on confirm, so backing out
-  // of the dialog leaves the user on the reset form.
-  async function handleLogout() {
-    if (await confirmLogout()) navigate('/login');
+  function handleLogout() {
+    logout();
+    navigate('/login');
   }
 
   return (
@@ -180,7 +175,7 @@ export function ForcePasswordResetPage() {
             </form>
 
             <form className="mt-md" style={{ textAlign: 'center' }} onSubmit={(e) => e.preventDefault()}>
-              <button type="button" className="btn-link-muted" onClick={() => void handleLogout()}>
+              <button type="button" className="btn-link-muted" onClick={handleLogout}>
                 Not you? <span style={{ textDecoration: 'underline' }}>Logout</span>
               </button>
             </form>

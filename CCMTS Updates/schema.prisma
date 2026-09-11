@@ -1,0 +1,265 @@
+    generator client {
+    provider = "prisma-client-js"
+    }
+
+    datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+    }
+
+    // --- Enums ---
+
+    enum UserRole {
+    ODU
+    Admin
+    Management
+    Courier
+    }
+
+    enum Priority {
+    Low
+    Medium
+    High
+    }
+
+    enum LGA {
+    IKEJA
+    VICTORIA_ISLAND
+    SURULERE
+    IKOYI
+    OJODU
+    ALIMOSHO
+    OSHODI
+    LAGOS_ISLAND
+    LAGOS_MAINLAND
+    EPE
+    BADAGRY
+    IKORODU
+    NOT_LAGOS
+    AGEGE
+    AJEROMI_IFELODUN
+    AMUWO_ODOFIN
+    APAPA
+    EGBEDA
+    ETI_OSA
+    IFAKO_IJAIYE
+    MUSHIN
+    YABA
+    }
+
+    enum LetterStatus {
+    Pending_Approval @map("Pending Approval")
+    Approved
+    Assigned
+    In_Transit       @map("In-Transit")
+    Delivered
+    Undelivered
+    }
+
+    enum NotificationType {
+    success
+    warning
+    error
+    info
+    }
+
+    // --- Models ---
+
+    model User {
+    id               BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+    name             String       @db.VarChar(255)
+    email            String       @unique @db.VarChar(255)
+    emailVerifiedAt  DateTime?    @map("email_verified_at")
+    password         String       @db.VarChar(255)
+    role             UserRole     @default(ODU)
+    directorateId    BigInt?      @map("directorate_id") @db.UnsignedBigInt
+    disabled         Boolean      @default(false)
+    mustResetPassword Boolean     @default(false) @map("must_reset_password")
+    rememberToken    String?      @map("remember_token") @db.VarChar(100)
+    createdAt        DateTime?    @map("created_at")
+    updatedAt        DateTime?    @map("updated_at")
+
+    // Relations
+    directorate      Directorate? @relation(fields: [directorateId], references: [id], onDelete: SetNull)
+    createdLetters   Letter[]     @relation("CreatedBy")
+    approvedLetters  Letter[]     @relation("ApprovedBy")
+    activityLogs     ActivityLog[]
+    letterTimelines  LetterTimeline[]
+    notifications    Notification[]
+    courierProfile   Courier?     @relation("UserToCourier")
+
+    @@map("users")
+    }
+
+    model Directorate {
+    id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+    name        String    @db.VarChar(255)
+    code        String    @unique @db.VarChar(255)
+    description String?   @db.Text
+    createdAt   DateTime? @map("created_at")
+    updatedAt   DateTime? @map("updated_at")
+
+    // Relations
+    users       User[]
+    letters     Letter[]
+
+    @@map("directorates")
+    }
+
+    model Courier {
+    id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+    userId              BigInt?   @unique @map("user_id") @db.UnsignedBigInt
+    name                String    @db.VarChar(255)
+    phone               String?   @db.VarChar(255)
+    email               String?   @db.VarChar(255)
+    availability        Boolean   @default(true)
+    activeTasks         Int       @default(0) @map("active_tasks")
+    performance         Int       @default(100)
+    completedDeliveries Int       @default(0) @map("completed_deliveries")
+    baseLga             LGA       @map("base_lga")
+    otherBranchesLga    Json      @default("[]") @map("other_branches_lga")
+    createdAt           DateTime? @map("created_at")
+    updatedAt           DateTime? @map("updated_at")
+
+    // Relations
+    user                User?     @relation("UserToCourier", fields: [userId], references: [id], onDelete: Cascade)
+    letters             Letter[]
+
+    @@map("couriers")
+    }
+
+    model Letter {
+    id                   BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+    trackingId           String       @unique @map("tracking_id") @db.VarChar(255)
+    senderDirectorateId  BigInt       @map("sender_directorate_id") @db.UnsignedBigInt
+    createdById          BigInt       @map("created_by") @db.UnsignedBigInt
+    recipientName        String       @map("recipient_name") @db.VarChar(255)
+    recipientAddress     String       @map("recipient_address") @db.VarChar(255)
+    lgaAddress           LGA          @map("lga_address")
+    subject              String       @db.VarChar(255)
+    submittedBy          String       @map("submitted_by") @db.VarChar(255)
+    priority             Priority     @default(Medium)
+    status               LetterStatus @default(Pending_Approval)
+    liabilityValue       Decimal      @default(0.00) @map("liability_value") @db.Decimal(12, 2)
+    liabilityYear        String       @map("liability_year") @db.VarChar(255)
+    courierId            BigInt?      @map("courier_id") @db.UnsignedBigInt
+    assignedAt           DateTime?    @map("assigned_at")
+    approvedById         BigInt?      @map("approved_by") @db.UnsignedBigInt
+    approvedAt           DateTime?    @map("approved_at")
+    deliveredAt          DateTime?    @map("delivered_at")
+    attachmentPath       String?      @map("attachment_path") @db.VarChar(255)
+    podImagePath         String?      @map("pod_image_path") @db.VarChar(255)
+    notes                String?      @db.Text
+    createdAt            DateTime?    @map("created_at")
+    updatedAt            DateTime?    @map("updated_at")
+
+
+    // Relations
+    senderDirectorate    Directorate       @relation(fields: [senderDirectorateId], references: [id], onDelete: Cascade)
+    createdBy            User              @relation("CreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+    courier              Courier?          @relation(fields: [courierId], references: [id], onDelete: SetNull)
+    approvedBy           User?             @relation("ApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+    timelines            LetterTimeline[]
+    notifications        Notification[]
+
+    @@index([senderDirectorateId], map: "letters_sender_directorate_id_foreign")
+    @@index([createdById], map: "letters_created_by_foreign")
+    @@index([courierId], map: "letters_courier_id_foreign")
+    @@index([approvedById], map: "letters_approved_by_foreign")
+    @@map("letters")
+    }
+
+    model LetterTimeline {
+    id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+    letterId    BigInt    @map("letter_id") @db.UnsignedBigInt
+    status      String    @db.VarChar(255)
+    description String?   @db.Text
+    userId      BigInt?   @map("user_id") @db.UnsignedBigInt
+    createdAt   DateTime  @default(now()) @map("created_at")
+
+    // Relations
+    letter      Letter    @relation(fields: [letterId], references: [id], onDelete: Cascade)
+    user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    @@index([letterId], map: "letter_timelines_letter_id_foreign")
+    @@index([userId], map: "letter_timelines_user_id_foreign")
+    @@map("letter_timelines")
+    }
+
+    model Notification {
+    id        BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+    userId    BigInt           @map("user_id") @db.UnsignedBigInt
+    type      NotificationType @default(info)
+    title     String           @db.VarChar(255)
+    message   String           @db.Text
+    letterId  BigInt?          @map("letter_id") @db.UnsignedBigInt
+    isRead    Boolean          @default(false) @map("is_read")
+    createdAt DateTime?        @map("created_at")
+    updatedAt DateTime?        @map("updated_at")
+
+    // Relations
+    user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    letter    Letter?          @relation(fields: [letterId], references: [id], onDelete: SetNull)
+
+    @@index([userId], map: "notifications_user_id_foreign")
+    @@index([letterId], map: "notifications_letter_id_foreign")
+    @@map("notifications")
+    }
+
+    model ActivityLog {
+    id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+    userId      BigInt?   @map("user_id") @db.UnsignedBigInt
+    action      String    @db.VarChar(100)
+    description String?   @db.Text
+    ipAddress   String?   @map("ip_address") @db.VarChar(45)
+    userAgent   String?   @map("user_agent") @db.Text
+    createdAt   DateTime  @default(now()) @map("created_at")
+
+    // Relations
+    user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    @@index([userId], map: "idx_user_id")
+    @@index([action], map: "idx_action")
+    @@index([createdAt], map: "idx_created_at")
+    @@map("activity_logs")
+    }
+
+    model PasswordReset {
+    id        Int      @id @default(autoincrement()) @db.UnsignedInt
+    email     String   @db.VarChar(255)
+    token     String   @db.VarChar(255)
+    expiresAt DateTime @updatedAt @map("expires_at")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    @@index([email], map: "idx_email")
+    @@index([expiresAt], map: "idx_expires_at")
+    @@map("password_resets")
+    }
+
+    model PersonalAccessToken {
+    id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+    tokenableType String    @map("tokenable_type") @db.VarChar(255)
+    tokenableId   BigInt    @map("tokenable_id") @db.UnsignedBigInt
+    name          String    @db.VarChar(255)
+    token         String    @unique @db.VarChar(64)
+    abilities     String?   @db.Text
+    lastUsedAt    DateTime? @map("last_used_at")
+    expiresAt     DateTime? @map("expires_at")
+    createdAt     DateTime? @map("created_at")
+    updatedAt     DateTime? @map("updated_at")
+
+    @@index([tokenableType, tokenableId], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+    @@map("personal_access_tokens")
+    }
+
+    model RateLimit {
+    id          Int      @id @default(autoincrement()) @db.UnsignedInt
+    ipAddress   String   @map("ip_address") @db.VarChar(45)
+    endpoint    String   @db.VarChar(255)
+    requests    Int      @default(1)
+    windowStart DateTime @default(now()) @map("window_start")
+
+    @@index([ipAddress, endpoint], map: "idx_ip_endpoint")
+    @@index([windowStart], map: "idx_window_start")
+    @@map("rate_limits")
+    }
