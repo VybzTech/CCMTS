@@ -23,3 +23,4 @@ KV/**.png
 KV/**.jpeg
 KV/**.webpw
 **.log
+node_modules
