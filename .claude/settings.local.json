@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import docx; print\\('python-docx available'\\)\")",
+      "Bash(pandoc --version)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(pm2 list *)",
+      "PowerShell(Get-WinEvent *)",
+      "PowerShell($ErrorActionPreference='SilentlyContinue'; Write-Output \"=== health ===\"; try { $r = Invoke-WebRequest -Uri 'http://localhost:9989/health' -UseBasicParsing -TimeoutSec 10; Write-Output \"STATUS: $\\($r.StatusCode\\)\"; Write-Output $r.Content } catch { Write-Output \"STATUS: $\\($_.Exception.Response.StatusCode.value__\\)\"; $s=$_.Exception.Response.GetResponseStream\\(\\); $rd=New-Object IO.StreamReader\\($s\\); Write-Output $rd.ReadToEnd\\(\\) }; Write-Output \"\"; Write-Output \"=== client ===\"; try { $c = Invoke-WebRequest -Uri 'http://localhost:4173/' -UseBasicParsing -TimeoutSec 10; Write-Output \"STATUS: $\\($c.StatusCode\\) len=$\\($c.Content.Length\\)\" } catch { Write-Output \"CLIENT ERR: $_\" })",
+      "Bash(curl -s -i http://localhost:9989/health)",
+      "Bash(cd *)",
+      "PowerShell(Resolve-DnsName *)"
+    ]
+  }
+}

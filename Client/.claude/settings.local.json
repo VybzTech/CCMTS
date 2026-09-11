@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:MOCK_SERVER_PORT=4123; Start-Process node -ArgumentList \"mock-server/server.cjs\" -RedirectStandardOutput \"$env:TEMP\\\\mock.out\" -RedirectStandardError \"$env:TEMP\\\\mock.err\"; Start-Sleep -Seconds 2; \"started\")",
+      "PowerShell(Copy-Item mock-server/db.json \"$env:TEMP\\\\db.backup.json\" -Force; \"backed up\")"
+    ]
+  }
+}
