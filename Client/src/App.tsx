@@ -15,6 +15,7 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { ForcePasswordResetPage } from './pages/auth/ForcePasswordResetPage';
 import { DashboardRouter } from './pages/dashboard/DashboardRouter';
 import { ManagementAnalyticsPage } from './pages/dashboard/ManagementAnalyticsPage';
+import { ManagementReportingPage } from './pages/dashboard/ManagementReportingPage';
 import { LettersListPage } from './pages/letters/LettersListPage';
 import { MyDeliveriesPage } from './pages/courier/MyDeliveriesPage';
 import { LetterDetailPage } from './pages/letters/LetterDetailPage';
@@ -86,6 +87,7 @@ function App() {
       {/* Management only */}
       <Route element={<ProtectedRoute allow={['Management']} />}>
         <Route path="/management/analytics" element={<ManagementAnalyticsPage />} />
+        <Route path="/management/reporting" element={<ManagementReportingPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

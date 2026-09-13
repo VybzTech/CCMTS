@@ -64,6 +64,8 @@ export const NAV_ITEMS: NavItem[] = [
   // Management only
   { to: '/admin/users', icon: 'fa-user-shield', label: 'Manage Users', roles: ['Management'] },
   { to: '/management/analytics', icon: 'fa-chart-line', label: 'Analytics', roles: ['Management'] },
+  // UAT MGT-003/004/005 - Management had no filterable, exportable view.
+  { to: '/management/reporting', icon: 'fa-file-lines', label: 'Reporting', roles: ['Management'] },
 
   // Shared across roles that touch letters
   { to: '/letters', icon: 'fa-envelope', label: 'All Letters', roles: ['ODU', 'Admin', 'Management'] },

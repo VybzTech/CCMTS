@@ -87,7 +87,25 @@ const bootstrap = async () => {
             origin: allowedOrigins,
             credentials: true
         }));
-        app.use(helmet());
+        // UAT NFR-007 (raised by both the Admin and Management testers):
+        // "HTTP redirects to HTTPS but responses carry no HSTS header."
+        // helmet() does set one by default, so a response without it did
+        // not come from this app - TLS terminates at the AWS ALB in front
+        // of us and that is where the tested response was served from
+        // (see DIAGNOSTIC-REPORT-2026-08-10.md section 4). Pinned
+        // explicitly anyway so the value is one year rather than helmet's
+        // 180-day default, and so the intent is visible here.
+        // NOTE: the edge terminating TLS must send this too - setting it
+        // here only covers responses that actually reach Express.
+        app.use(
+            helmet({
+                hsts: {
+                    maxAge: 31536000, // 1 year, the preload-list minimum
+                    includeSubDomains: true,
+                    preload: true,
+                },
+            })
+        );
         app.use(cookieParser());
         app.use(express.json());
         app.use('/uploads', express.static('uploads'));
@@ -100,8 +118,13 @@ const bootstrap = async () => {
                 checkRedisConnection(),
             ]);
 
+            // Redis (Titan KV) is NOT load-bearing - nothing uses BullMQ
+            // anymore - so it must not decide the HTTP status. It did, and
+            // a stopped KV made a perfectly healthy API serve 503 to every
+            // monitor for ~2 weeks (DIAGNOSTIC-REPORT-2026-08-10.md s.3).
+            // Reported for visibility; only the DB gates the status code.
             const health = {
-                status: dbCheck.status === 'fulfilled' && redisCheck.status === 'fulfilled' ? 'ok' : 'degraded',
+                status: dbCheck.status === 'fulfilled' ? 'ok' : 'error',
                 uptimeSeconds: Math.round(process.uptime()),
                 database: dbCheck.status === 'fulfilled' ? 'connected' : 'error',
                 redis: redisCheck.status === 'fulfilled' ? 'connected' : 'error',
