@@ -34,10 +34,11 @@ export function useLogout() {
       message: "You'll be returned to the sign-in screen and any unsaved work on this page will be lost.",
       confirmLabel: 'Log out',
       cancelLabel: 'Stay signed in',
-      // 'warning', not 'danger' - the danger variant's icon is a trash
-      // can (see ICON_BY_VARIANT in ConfirmDialogProvider), which reads
-      // as "delete something" rather than "end this session".
-      variant: 'warning',
+      // Red (danger) to match the red Logout item in the user menu, but
+      // with a sign-out glyph: the danger variant's default icon is a
+      // trash can, which reads as "delete something".
+      variant: 'danger',
+      icon: 'fa-right-from-bracket',
     });
     if (ok) logout();
     return ok;

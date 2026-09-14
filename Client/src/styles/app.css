@@ -88,6 +88,9 @@
   --radius-lg: 16px;
   --radius-sm: 8px;
   /* Typography */
+  /* Wordmark only (sidebar "CCMS"). Geometric, so the short uppercase
+     acronym reads as a mark rather than body text set large. */
+  --font-family-brand: "Outfit", "Inter", -apple-system, "Segoe UI", sans-serif;
   --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --base-font-size: 14px;
   --max-content-width: 1200px;
@@ -289,8 +292,7 @@ body.sidebar-open {
 
 .sidebar-header {
   position: relative;
-  padding: 20px 16px;
-  text-align: center;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
@@ -336,42 +338,60 @@ body.sidebar-open {
 .app-container.sidebar-collapsed .role-badge,
 .app-container.sidebar-collapsed .nav-item span,
 .app-container.sidebar-collapsed .nav-item .badge,
-.app-container.sidebar-collapsed .theme-toggle-btn span {
+.app-container.sidebar-collapsed .theme-toggle-label {
   display: none;
 }
 
 .app-container.sidebar-collapsed .nav-item,
-.app-container.sidebar-collapsed .theme-toggle-btn {
+.app-container.sidebar-collapsed .theme-toggle-btn,
+.app-container.sidebar-collapsed .logo {
   justify-content: center;
+}
+
+.app-container.sidebar-collapsed .sidebar-header {
+  padding-inline: 12px;
 }
 
 .app-container.sidebar-collapsed .sidebar-collapse-toggle i {
   transform: rotate(180deg);
 }
 
+/* Seal + wordmark on one row, aligned to the same left edge as the nav
+   items, instead of a centred stack that spent ~150px of height before
+   the first link. */
 .logo {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .logo-icon-img {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   border-radius: 50%;
   object-fit: contain;
-  background: white;
-  padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  background: #f7faf8;
+  padding: 3px;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
 }
 
 .logo-text h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--sidebar-accent);
-  text-align: center;
-  letter-spacing: 1px;
+  font-family: var(--font-family-brand);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f0fbf4;
+  letter-spacing: 0.04em;
 }
 
 .logo-text p {
@@ -382,13 +402,14 @@ body.sidebar-open {
 
 .role-badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 2px 8px;
   background: rgba(34, 197, 94, 0.15);
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 11px;
+  line-height: 1.5;
   color: var(--sidebar-accent);
   font-weight: 600;
-  margin-top: 6px;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-nav {
@@ -468,10 +489,11 @@ body.sidebar-open {
 
 .theme-toggle-btn {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   background: var(--sidebar-hover);
   border: 1px solid var(--sidebar-border);
   border-radius: var(--radius-sm);
@@ -492,58 +514,83 @@ body.sidebar-open {
    never drift out of sync with the icon-swap logic in app.js. */
 .theme-switch-track {
   position: relative;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--sidebar-border);
+  width: 52px;
+  height: 28px;
   flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--sidebar-border);
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.theme-switch-icon {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  transition: opacity 0.2s ease, color 0.2s ease;
-}
-
-.theme-switch-icon.sun {
-  left: 5px;
-  color: #fbbf24;
-  opacity: 1;
-}
-
-.theme-switch-icon.moon {
-  right: 5px;
-  color: var(--sidebar-text-muted);
-  opacity: 0.5;
-}
-
+/* The thumb carries the CURRENT mode's glyph (sun/moon crossfade with a
+   quarter turn), so state reads from the icon itself, not just from
+   which end the thumb sits at. */
 .theme-switch-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--sidebar-accent);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fdf8e8;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-switch-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-switch-icon.sun {
+  color: #d97706;
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.theme-switch-icon.moon {
+  color: #1e3a5f;
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+:root[data-theme="dark"] .theme-switch-track {
+  background: rgba(34, 197, 94, 0.28);
 }
 
 :root[data-theme="dark"] .theme-switch-thumb {
-  transform: translateX(18px);
+  transform: translateX(24px);
+  background: #e8eef7;
 }
 
 :root[data-theme="dark"] .theme-switch-icon.sun {
-  color: var(--sidebar-text-muted);
-  opacity: 0.5;
+  opacity: 0;
+  transform: rotate(90deg);
 }
 
 :root[data-theme="dark"] .theme-switch-icon.moon {
-  color: #93c5fd;
   opacity: 1;
+  transform: rotate(0deg);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--sidebar-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-track,
+  .theme-switch-thumb,
+  .theme-switch-icon {
+    transition: none;
+  }
 }
 
 /* ===========================
@@ -3741,10 +3788,13 @@ a.tracking-id:hover {
   line-height: 1.5;
 }
 
+/* Left-aligned so the buttons share the edge of the icon, title and
+   message above them: one column, read straight down. */
 .modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 /* ===========================
@@ -4473,8 +4523,12 @@ a.tracking-id:hover {
   .app-container.sidebar-collapsed .role-badge,
   .app-container.sidebar-collapsed .nav-item span,
   .app-container.sidebar-collapsed .nav-item .badge,
-  .app-container.sidebar-collapsed .theme-toggle-btn span {
+  .app-container.sidebar-collapsed .theme-toggle-label {
     display: revert;
+  }
+
+  .app-container.sidebar-collapsed .logo {
+    justify-content: flex-start;
   }
 
   .top-bar {

@@ -22,11 +22,12 @@ export function ThemeToggleSwitch() {
       title="Switch color theme"
     >
       <span className="theme-switch-track" aria-hidden="true">
-        <i className="fas fa-sun theme-switch-icon sun" />
-        <i className="fas fa-moon theme-switch-icon moon" />
-        <span className="theme-switch-thumb" />
+        <span className="theme-switch-thumb">
+          <i className="fas fa-sun theme-switch-icon sun" />
+          <i className="fas fa-moon theme-switch-icon moon" />
+        </span>
       </span>
-      <span>Dark Mode</span>
+      <span className="theme-toggle-label">Dark mode</span>
     </button>
   );
 }

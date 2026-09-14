@@ -27,6 +27,10 @@ export interface ConfirmOptions {
    *  destructive the action was. Pass 'danger' for delete-style actions
    *  where a stronger visual cue is worth the deviation. */
   variant?: ConfirmVariant;
+  /** Font Awesome class overriding the variant's default icon. The
+   *  variant still drives colour; this only swaps the glyph, e.g. a red
+   *  sign-out arrow instead of the danger variant's trash can. */
+  icon?: string;
 }
 
 type ConfirmFn = (options: ConfirmOptions) => Promise<boolean>;
@@ -65,7 +69,10 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
         {pending && (
           <>
             <div className={`modal-icon ${pending.variant ?? 'warning'}`}>
-              <i className={`fas ${ICON_BY_VARIANT[pending.variant ?? 'warning']}`} aria-hidden="true" />
+              <i
+                className={`fas ${pending.icon ?? ICON_BY_VARIANT[pending.variant ?? 'warning']}`}
+                aria-hidden="true"
+              />
             </div>
             <h3>{pending.title ?? 'Confirm Action'}</h3>
             <p>{pending.message}</p>
