@@ -11,8 +11,6 @@ import type {
   ChangePasswordResponse,
   LoginRequest,
   LoginResponse,
-  SignupRequest,
-  SignupResponse,
 } from '../types/api';
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
@@ -20,10 +18,9 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
   return data;
 }
 
-export async function signup(payload: SignupRequest): Promise<SignupResponse> {
-  const { data } = await apiClient.post<SignupResponse>('/auth/signup', payload);
-  return data;
-}
+// signup() was removed along with the server's POST /auth/signup - it was
+// an unauthenticated account-creation endpoint that accepted `role`.
+// Accounts are created through userService.createUser (Management-only).
 
 export async function fetchCurrentUser(): Promise<AuthMeResponse> {
   const { data } = await apiClient.get<AuthMeResponse>('/auth/me');

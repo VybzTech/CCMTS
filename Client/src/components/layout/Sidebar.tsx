@@ -58,7 +58,7 @@ export function Sidebar({
         </button>
 
         <div className="logo">
-          <img src="/images/lirs-logo.jpg" alt="LIRS Logo" className="logo-icon-img" />
+          <img src="/images/lirs-logo.png" alt="LIRS Logo" className="logo-icon-img" />
           <div className="logo-text">
             <h2>CCMS</h2>
             <span className="role-badge">{formatRoleLabel(user.role)}</span>

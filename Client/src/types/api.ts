@@ -74,29 +74,15 @@ export interface LoginResponse {
   mustResetPassword?: boolean;
 }
 
-export interface SignupRequest {
-  name: string;
-  email: string;
-  password: string;
-  role?: UserRole;
-  directorateId?: number;
-}
-
-export interface SignupResponse {
-  message: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-  };
-}
+/* SignupRequest/SignupResponse were removed along with POST /auth/signup.
+   That route was public, unauthenticated, and accepted `role`, so anyone
+   who could reach the API could create themselves a Management account.
+   Account creation is CreateUserRequest below (POST /users, Management
+   only). Do not reintroduce an unauthenticated variant. */
 
 /** Payload for POST /users - the Management-only account-creation
  *  endpoint (see the file header comment on UserRole for why this
- *  isn't in API_DOCUMENTATION.md). Deliberately shaped like
- *  SignupRequest above since it does the same thing authenticated and
- *  role-gated, rather than open. */
+ *  isn't in API_DOCUMENTATION.md). */
 export interface CreateUserRequest {
   name: string;
   email: string;

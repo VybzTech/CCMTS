@@ -80,7 +80,7 @@ export function LoginPage() {
         <div className="login-hero-top">
           <div className="login-hero-brand">
             <div className="login-hero-logo">
-              <img src="/images/lirs-logo.jpg" alt="LIRS logo" />
+              <img src="/images/lirs-logo.png" alt="LIRS logo" />
             </div>
             <span className="login-hero-org">Lagos State Internal Revenue Service</span>
           </div>

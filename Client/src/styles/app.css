@@ -88,6 +88,9 @@
   --radius-lg: 16px;
   --radius-sm: 8px;
   /* Typography */
+  /* Wordmark only (sidebar "CCMS"). Geometric, so the short uppercase
+     acronym reads as a mark rather than body text set large. */
+  --font-family-brand: "Outfit", "Inter", -apple-system, "Segoe UI", sans-serif;
   --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --base-font-size: 14px;
   --max-content-width: 1200px;
@@ -100,6 +103,10 @@
   --sidebar-hover: rgba(255, 255, 255, 0.08);
   --sidebar-active: rgba(34, 197, 94, 0.22);
   --sidebar-accent: #22c55e;
+  /* Nav scrollbar - a tinted trace of the accent rather than the OS chrome,
+     which paints a light-grey bar straight across the dark sidebar. */
+  --sidebar-scroll-thumb: rgba(34, 197, 94, 0.32);
+  --sidebar-scroll-track: rgba(255, 255, 255, 0.05);
 }
 
 /* ===========================
@@ -183,6 +190,10 @@
   --sidebar-hover: rgba(255, 255, 255, 0.06);
   --sidebar-active: rgba(34, 197, 94, 0.22);
   --sidebar-accent: #22c55e;
+  /* Hotter thumb than light mode - the near-black green ground swallows
+     a 0.32 alpha green almost entirely. */
+  --sidebar-scroll-thumb: rgba(34, 197, 94, 0.42);
+  --sidebar-scroll-track: rgba(255, 255, 255, 0.04);
 }
 
 /* ===========================
@@ -281,8 +292,7 @@ body.sidebar-open {
 
 .sidebar-header {
   position: relative;
-  padding: 20px 16px;
-  text-align: center;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
@@ -328,42 +338,60 @@ body.sidebar-open {
 .app-container.sidebar-collapsed .role-badge,
 .app-container.sidebar-collapsed .nav-item span,
 .app-container.sidebar-collapsed .nav-item .badge,
-.app-container.sidebar-collapsed .theme-toggle-btn span {
+.app-container.sidebar-collapsed .theme-toggle-label {
   display: none;
 }
 
 .app-container.sidebar-collapsed .nav-item,
-.app-container.sidebar-collapsed .theme-toggle-btn {
+.app-container.sidebar-collapsed .theme-toggle-btn,
+.app-container.sidebar-collapsed .logo {
   justify-content: center;
+}
+
+.app-container.sidebar-collapsed .sidebar-header {
+  padding-inline: 12px;
 }
 
 .app-container.sidebar-collapsed .sidebar-collapse-toggle i {
   transform: rotate(180deg);
 }
 
+/* Seal + wordmark on one row, aligned to the same left edge as the nav
+   items, instead of a centred stack that spent ~150px of height before
+   the first link. */
 .logo {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .logo-icon-img {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   border-radius: 50%;
   object-fit: contain;
-  background: white;
-  padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  background: #f7faf8;
+  padding: 3px;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
 }
 
 .logo-text h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--sidebar-accent);
-  text-align: center;
-  letter-spacing: 1px;
+  font-family: var(--font-family-brand);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f0fbf4;
+  letter-spacing: 0.04em;
 }
 
 .logo-text p {
@@ -374,19 +402,32 @@ body.sidebar-open {
 
 .role-badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 2px 8px;
   background: rgba(34, 197, 94, 0.15);
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 11px;
+  line-height: 1.5;
   color: var(--sidebar-accent);
   font-weight: 600;
-  margin-top: 6px;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-nav {
   flex: 1;
   padding: 12px;
   overflow-y: auto;
+  /* Standard properties only, deliberately. Chrome ignores
+     ::-webkit-scrollbar rules on any element that also sets
+     scrollbar-width/scrollbar-color, so mixing the two would leave the
+     webkit block silently dead - and these two do the whole job. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-scroll-thumb) var(--sidebar-scroll-track);
+}
+
+/* Collapsed to 84px, the nav is icon-only and every pixel of width counts;
+   a gutter there squeezes the icons off-centre. */
+.app-container.sidebar-collapsed .sidebar-nav {
+  scrollbar-width: none;
 }
 
 .nav-section-label {
@@ -448,10 +489,11 @@ body.sidebar-open {
 
 .theme-toggle-btn {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   background: var(--sidebar-hover);
   border: 1px solid var(--sidebar-border);
   border-radius: var(--radius-sm);
@@ -472,58 +514,83 @@ body.sidebar-open {
    never drift out of sync with the icon-swap logic in app.js. */
 .theme-switch-track {
   position: relative;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--sidebar-border);
+  width: 52px;
+  height: 28px;
   flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--sidebar-border);
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.theme-switch-icon {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  transition: opacity 0.2s ease, color 0.2s ease;
-}
-
-.theme-switch-icon.sun {
-  left: 5px;
-  color: #fbbf24;
-  opacity: 1;
-}
-
-.theme-switch-icon.moon {
-  right: 5px;
-  color: var(--sidebar-text-muted);
-  opacity: 0.5;
-}
-
+/* The thumb carries the CURRENT mode's glyph (sun/moon crossfade with a
+   quarter turn), so state reads from the icon itself, not just from
+   which end the thumb sits at. */
 .theme-switch-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--sidebar-accent);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fdf8e8;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-switch-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-switch-icon.sun {
+  color: #d97706;
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.theme-switch-icon.moon {
+  color: #1e3a5f;
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+:root[data-theme="dark"] .theme-switch-track {
+  background: rgba(34, 197, 94, 0.28);
 }
 
 :root[data-theme="dark"] .theme-switch-thumb {
-  transform: translateX(18px);
+  transform: translateX(24px);
+  background: #e8eef7;
 }
 
 :root[data-theme="dark"] .theme-switch-icon.sun {
-  color: var(--sidebar-text-muted);
-  opacity: 0.5;
+  opacity: 0;
+  transform: rotate(90deg);
 }
 
 :root[data-theme="dark"] .theme-switch-icon.moon {
-  color: #93c5fd;
   opacity: 1;
+  transform: rotate(0deg);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--sidebar-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-track,
+  .theme-switch-thumb,
+  .theme-switch-icon {
+    transition: none;
+  }
 }
 
 /* ===========================
@@ -2699,8 +2766,21 @@ a.tracking-id:hover {
   gap: 14px;
 }
 
+/* .stat-value/.stat-label are both spans, so text-align alone left them
+   running together on one line ("1Delivered"). Stack them explicitly. */
 .directorate-stats .stat-item {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* The 30px .stat-value is sized for the top-level KPI cards; at this
+   sub-stat scale it overpowers the directorate name above it. */
+.directorate-stats .stat-value {
+  font-size: 20px;
+  line-height: 1.2;
+  margin-bottom: 0;
 }
 
 .directorate-stats .stat-value.success {
@@ -2713,6 +2793,252 @@ a.tracking-id:hover {
 
 .directorate-stats .stat-value.danger {
   color: var(--danger);
+}
+
+/* ===========================
+   25b. Help & Guide page
+   NEW IN THE REACT REBUILD - the PHP app's help.php shipped this markup
+   (.capability-list, .workflow-*, .status-guide, .faq-*) with no CSS
+   backing it at all, so the page rendered as raw <ul> bullets and a
+   loose stack of badges. These are the missing rules.
+   =========================== */
+
+.capability-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.capability-list li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.capability-list li i {
+  justify-self: center;
+  font-size: 12px;
+}
+
+/* The list mixes "you can" with "you can't" rows. Muting the negatives
+   separates the two groups by tone alone, without splitting the list
+   into two headed sections. */
+.capability-list li:has(.text-danger) {
+  color: var(--text-secondary);
+}
+
+/* ---- Letter workflow diagram ---- */
+
+.workflow-diagram {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each step draws its own connector down its left gutter, so the line
+   is continuous without a separate arrow element between items.
+   .is-last omits it - nothing follows the final step. */
+.workflow-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 14px;
+  padding-bottom: 22px;
+}
+
+.workflow-step:not(.is-last)::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 30px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-color);
+}
+
+.workflow-step.is-last {
+  padding-bottom: 0;
+}
+
+.workflow-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The end of the happy path - green marker so the terminal success
+   state is findable without reading every step. */
+.workflow-step.is-last .workflow-marker {
+  background: var(--success-badge-bg);
+  border-color: var(--success);
+  color: var(--success-text);
+}
+
+.workflow-content {
+  padding-top: 3px;
+  min-width: 0;
+}
+
+.workflow-content > p {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* An exit off the main path. The left border plus the tint turns the
+   branch into a visible fork rather than another item in the list. */
+.workflow-branch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  margin-left: 14px;
+  padding: 8px 12px;
+  border-left: 2px dashed var(--danger-tint-border);
+  background: var(--danger-tint-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.workflow-branch-label {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Undelivered is terminal and reachable from two places, so it's
+   stated once below the diagram instead of drawn twice inside it. */
+.workflow-terminal-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ---- Priority guide & FAQ ---- */
+
+.status-guide {
+  display: grid;
+  gap: 14px;
+}
+
+.status-guide .status-item {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-guide .status-item p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.faq-list {
+  display: grid;
+  gap: 18px;
+}
+
+.faq-item h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.faq-item p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.faq-item + .faq-item {
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+/* Stack the priority badge above its description - 90px is enough for
+   the badge but not for the sentence beside it on a phone. */
+@media (max-width: 560px) {
+  .status-guide .status-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+/* ===========================
+   25c. Management Reporting (UAT MGT-003/004/005)
+   =========================== */
+
+/* Filters sit on one row on desktop and wrap to a single column on a
+   phone. Reset is pushed to the end of the row so it never sits between
+   two inputs, where it reads like a third field. */
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.report-filters .form-group {
+  flex: 1 1 180px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.report-filters .btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.report-range-warning {
+  margin-top: 14px;
+}
+
+.report-total {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.report-total strong {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 700px) {
+  .report-filters .form-group {
+    flex-basis: 100%;
+  }
+
+  /* Full-width on its own row rather than a lone button hugging the
+     right edge under three stacked inputs. */
+  .report-filters .btn {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 /* ===========================
@@ -3462,10 +3788,13 @@ a.tracking-id:hover {
   line-height: 1.5;
 }
 
+/* Left-aligned so the buttons share the edge of the icon, title and
+   message above them: one column, read straight down. */
 .modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 /* ===========================
@@ -4194,8 +4523,12 @@ a.tracking-id:hover {
   .app-container.sidebar-collapsed .role-badge,
   .app-container.sidebar-collapsed .nav-item span,
   .app-container.sidebar-collapsed .nav-item .badge,
-  .app-container.sidebar-collapsed .theme-toggle-btn span {
+  .app-container.sidebar-collapsed .theme-toggle-label {
     display: revert;
+  }
+
+  .app-container.sidebar-collapsed .logo {
+    justify-content: flex-start;
   }
 
   .top-bar {
