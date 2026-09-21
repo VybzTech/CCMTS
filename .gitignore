@@ -107,3 +107,10 @@ env/
 *.sql
 *.sh
 migrations/**
+docs/
+docs/**
+scripts
+scripts/**
+Server/uploads/ 
+Server/uploads/**
+update_excel.py
